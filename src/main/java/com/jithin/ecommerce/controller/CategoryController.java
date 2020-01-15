@@ -18,9 +18,17 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/")
-    public ResponseEntity<Iterable<Category>> getAll() {
-        return new ResponseEntity<>(categoryService.getAll(), HttpStatus.OK);
+    @GetMapping("")
+    public ResponseEntity<Iterable<Category>> getAll(
+            @RequestParam(name = "page", defaultValue = "0") String page,
+            @RequestParam(name = "size", defaultValue = "10") String size,
+            @RequestParam(name = "sort", defaultValue = "createAt") String sort,
+            @RequestParam(name = "search", required = false) String search
+    ) {
+        int page_num = Integer.parseInt(page);
+        int item_size = Integer.parseInt(size);
+
+        return new ResponseEntity<>(categoryService.PaginatedCategoryList(page_num, item_size, sort, search), HttpStatus.OK);
     }
 
 
