@@ -1,5 +1,6 @@
 package com.jithin.ecommerce.controller;
 
+import com.jithin.ecommerce.dto.DeleteResponseDto;
 import com.jithin.ecommerce.exception.DepartmentNotFoundException;
 import com.jithin.ecommerce.model.Department;
 import com.jithin.ecommerce.services.DepartmentService;
@@ -13,7 +14,7 @@ import javax.validation.Valid;
 import static com.jithin.ecommerce.utils.constants.API_BASE;
 
 @RestController
-@RequestMapping(API_BASE+"/department")
+@RequestMapping(API_BASE + "/department")
 public class DepartmentController {
     @Autowired
     private DepartmentService departmentService;
@@ -31,12 +32,11 @@ public class DepartmentController {
         return new ResponseEntity<>(departmentService.PaginateDepartment(page_num, item_size, sort, search), HttpStatus.OK);
     }
 
-     @GetMapping("/{id}")
-         public ResponseEntity<?> getDepartmentsOfCategory(@PathVariable Long id) {
-             DepartmentsOfCategory department = departmentService.get(id).orElseThrow(() -> new DepartmentsOfCategoryNotFoundException(id));
-             return ResponseEntity.ok(department);
-         }
-
+    @GetMapping("/category/{id}")
+    public ResponseEntity<?> getDepartmentsOfCategory(@PathVariable Long id) {
+        Iterable<Department> departments = departmentService.DepartmentsOfCategory(id);
+        return ResponseEntity.ok(departments);
+    }
 
 
     @PostMapping("/new")
@@ -51,8 +51,8 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteDepartment(@PathVariable Long id) {
-        String message = departmentService.delete(id);
+    public ResponseEntity<?> deleteDepartment(@PathVariable Long id) {
+        DeleteResponseDto message = departmentService.delete(id);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
@@ -61,5 +61,12 @@ public class DepartmentController {
 
         return new ResponseEntity<>(departmentService.update(id, body), HttpStatus.OK);
     }
+
+
+
+
+
+
+
 
 }

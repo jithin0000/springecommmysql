@@ -1,5 +1,6 @@
 package com.jithin.ecommerce.services;
 
+import com.jithin.ecommerce.dto.DeleteResponseDto;
 import com.sun.xml.bind.v2.model.core.ID;
 import org.springframework.data.repository.CrudRepository;
 
@@ -29,9 +30,11 @@ public abstract class BaseService<T extends CrudRepository<E, Long>, E> {
         return repository.save(body);
     }
 
-    public String delete(Long id){
+    public DeleteResponseDto delete(Long id){
         repository.deleteById(id);
-        return "deleted";
+        return new DeleteResponseDto(id);
+
+
     }
 
     public abstract E update(Long id, E body);

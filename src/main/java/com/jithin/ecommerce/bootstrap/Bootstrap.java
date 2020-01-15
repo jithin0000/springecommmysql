@@ -23,15 +23,15 @@ public class Bootstrap implements CommandLineRunner {
         Faker faker = new Faker();
 
         generateCategories(faker);
-        generateDepartment(faker);
 
     }
 
-    private void generateDepartment(Faker faker) {
-        for (int i = 1; i < 15; i++) {
+
+    private void generateDepartment(Faker faker, Long categoryid) {
+        for (int i = 1; i < 2; i++) {
             Department department = new Department();
             department.setName(faker.company().name());
-            department.setCategory(categoryService.get((long) i).get());
+            department.setCategory(categoryService.get(categoryid).get());
             departmentService.create(department);
         }
     }
@@ -41,7 +41,10 @@ public class Bootstrap implements CommandLineRunner {
         for (int i = 0; i < 15; i++) {
             Category category = new Category();
             category.setName(faker.commerce().department());
-            categoryService.create(category);
+
+            Category category1 = categoryService.create(category);
+
+            generateDepartment(faker, category1.getId());
         }
 
     }
