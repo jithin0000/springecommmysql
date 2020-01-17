@@ -13,7 +13,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode
 @MappedSuperclass
-public class BaseModel {
+public abstract class BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

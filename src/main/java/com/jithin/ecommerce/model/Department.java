@@ -18,7 +18,7 @@ public class Department extends BaseModel {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     @JsonIgnore
     private Category category;
 }

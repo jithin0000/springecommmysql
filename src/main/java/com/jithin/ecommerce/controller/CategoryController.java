@@ -49,25 +49,19 @@ public class CategoryController {
 
         Category category = new Category();
         category.setName(categoryRequestDto.getName());
-        Category createdCategory = categoryService.create(category);
 
         for (int i = 0; i < categoryRequestDto.getDepartment().length; i++) {
 
             Optional<Department> departmentOptional = departmentService.get(categoryRequestDto.getDepartment()[i]);
 
             if (departmentOptional.isPresent()) {
-                departmentOptional.get().setCategory(createdCategory);
-                departmentService.create(departmentOptional.get());
+                category.addDepartment(departmentOptional.get());
             }else {
                 throw new DepartmentNotFoundException(categoryRequestDto.getDepartment()[i]);
             }
         }
 
-
-        Category getUpdatedCategory = categoryService.get(createdCategory.getId())
-                .orElseThrow(() -> new CategoryNotFoundException(createdCategory.getId()));
-
-        return new ResponseEntity<>(getUpdatedCategory, HttpStatus.CREATED);
+        return new ResponseEntity<>(categoryService.create(category), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")

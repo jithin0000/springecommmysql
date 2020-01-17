@@ -23,6 +23,7 @@ public class Category extends BaseModel {
 
     public void addDepartment(Department department) {
         this.departments.add(department);
+        department.setCategory(this);
     }
 
 
