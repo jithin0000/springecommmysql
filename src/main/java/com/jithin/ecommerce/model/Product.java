@@ -29,6 +29,9 @@ public class Product extends BaseModel {
 
     private int rating = 0;
 
+    private ESize size ;
+    private String color;
+
     @ManyToMany
     @JoinTable(
             name = "product_property",
