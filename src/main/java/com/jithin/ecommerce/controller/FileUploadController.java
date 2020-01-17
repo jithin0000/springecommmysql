@@ -1,25 +1,26 @@
 package com.jithin.ecommerce.controller;
 
+import com.jithin.ecommerce.model.Photo;
 import com.jithin.ecommerce.services.FileStorageService;
+import com.jithin.ecommerce.services.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.jithin.ecommerce.utils.constants.API_BASE;
-import static java.util.Arrays.asList;
 
 @RestController
 @RequestMapping(API_BASE + "/upload")
@@ -28,11 +29,14 @@ public class FileUploadController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private PhotoService photoService;
+
     @PostMapping("")
-    public ResponseEntity<?> uploadSingleFile(@RequestParam("file") MultipartFile uploadFile) {
+    public Photo uploadSingleFile(@RequestParam("file") MultipartFile uploadFile) {
 
         if (uploadFile.isEmpty()) {
-            return new ResponseEntity<>("File is empty", HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("please upload file");
         }
 
         String fileName = fileStorageService.storeFile(uploadFile);
@@ -42,19 +46,26 @@ public class FileUploadController {
                 .path(fileName)
                 .toUriString();
 
+        Photo photo = new Photo();
+        photo.setImageUrl(fileDownloadUri);
 
-        return ResponseEntity.ok(fileDownloadUri);
+        return photoService.create(photo);
 
     }
 
-    @PostMapping("/uploadMultipleFiles")
+    @PostMapping("/multiple")
     public ResponseEntity uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
-        List data =  Arrays.asList(files)
-                .stream()
-                .map(file -> uploadSingleFile(file))
-                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(data);
+
+        List<Photo> photos = new ArrayList<>();
+
+        for (MultipartFile file :
+                files) {
+            Photo p = this.uploadSingleFile(file);
+            photos.add(p);
+        }
+
+        return ResponseEntity.ok(photos);
     }
 
     @GetMapping("/{fileName:.+}")
