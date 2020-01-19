@@ -29,7 +29,7 @@ public class Product extends BaseModel {
 
     private int rating = 0;
 
-    private ESize size ;
+    private ESize size;
     private String color;
 
     @ManyToMany
@@ -40,4 +40,6 @@ public class Product extends BaseModel {
     )
     private List<Property> properties = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
+    private List<Photo> photos = new ArrayList<>();
 }

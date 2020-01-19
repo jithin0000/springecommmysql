@@ -2,14 +2,18 @@ package com.jithin.ecommerce.controller;
 
 import com.jithin.ecommerce.dto.DeleteResponseDto;
 import com.jithin.ecommerce.dto.ProductRequestDto;
+import com.jithin.ecommerce.dto.converter.ProductFilterRequestDto;
 import com.jithin.ecommerce.dto.converter.ProductRequestDtoToProduct;
 import com.jithin.ecommerce.exception.CategoryNotFoundException;
 import com.jithin.ecommerce.exception.DepartmentNotFoundException;
+import com.jithin.ecommerce.exception.PhotoNotFoundException;
 import com.jithin.ecommerce.exception.ProductNotFoundException;
 import com.jithin.ecommerce.model.Category;
+import com.jithin.ecommerce.model.Photo;
 import com.jithin.ecommerce.model.Product;
 import com.jithin.ecommerce.model.Department;
 import com.jithin.ecommerce.services.CategoryService;
+import com.jithin.ecommerce.services.PhotoService;
 import com.jithin.ecommerce.services.ProductService;
 import com.jithin.ecommerce.services.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +28,7 @@ import static com.jithin.ecommerce.utils.constants.API_BASE;
 
 @RestController
 @RequestMapping(API_BASE + "/product")
-public class ProductController {
+public class  ProductController {
     @Autowired
     private ProductService productService;
 
@@ -33,6 +37,9 @@ public class ProductController {
 
     @Autowired
     private ProductRequestDtoToProduct productRequestDtoToProductConverter;
+
+    @Autowired
+    private PhotoService photoService;
 
     @GetMapping("")
     public ResponseEntity<Iterable<Product>> getAll(
@@ -47,13 +54,33 @@ public class ProductController {
         return new ResponseEntity<>(productService.PaginatedProductList(page_num, item_size, sort, search), HttpStatus.OK);
     }
 
+    @PostMapping("/filter" +
+            "")
+    public ResponseEntity<?> getProductsByFiltering(@Valid @RequestBody ProductFilterRequestDto filterRequestDto) {
+
+        return ResponseEntity.ok(productService.getFilteredProducts(
+                filterRequestDto.getPage(), filterRequestDto.getPageSize(),filterRequestDto.getSort(),
+                filterRequestDto.getSearch(),filterRequestDto.getCategories()
+        ));
+    }
+
+
+
 
     @PostMapping("/new")
     public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductRequestDto productRequestDto) {
 
        Product product =  productRequestDtoToProductConverter.convert(productRequestDto);
-        Category category = categoryService.get(productRequestDto.getCategory_id())
-                .orElseThrow(() -> new CategoryNotFoundException(productRequestDto.getCategory_id()));
+        Category category = categoryService.get(productRequestDto.getCategory())
+                .orElseThrow(() -> new CategoryNotFoundException(productRequestDto.getCategory()));
+
+        for (Long photoId : productRequestDto.getPhotos()) {
+
+            Photo photo = photoService.get(photoId).orElseThrow(() -> new PhotoNotFoundException(photoId));
+
+            product.getPhotos().add(photo);
+            photo.setProduct(product);
+        }
 
         product.setCategory(category);
 

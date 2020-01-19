@@ -8,6 +8,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 @Service
 public class ProductService extends BaseService<ProductRepository, Product> {
     protected ProductService(ProductRepository repository) {
@@ -30,6 +32,25 @@ public class ProductService extends BaseService<ProductRepository, Product> {
         }
 
         return products;
-
     }
+
+    public Page<Product> getFilteredProducts(int page, int size, String sort, String search, List<Long> categoryIds) {
+
+        Page<Product> products;
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sort));
+        if (!StringUtils.isEmpty(search))
+        {
+            products = getRepository().findByNameContainingIgnoreCase(search, pageRequest);
+        }else {
+
+            products = getRepository().findAll(pageRequest);
+        }
+
+        if (!categoryIds.isEmpty()) {
+            products = getRepository().findByCategoryIdIn(categoryIds, pageRequest);
+        }
+
+        return products;
+    }
+
 }

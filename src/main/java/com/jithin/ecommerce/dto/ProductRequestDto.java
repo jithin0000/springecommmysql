@@ -20,7 +20,9 @@ public class ProductRequestDto {
     private int quantity;
 
     @NotNull(message = "category is required fiele")
-    private long category_id;
+    private long category;
+
+    private Long[] photos ;
 
     private int rating = 0;
 }

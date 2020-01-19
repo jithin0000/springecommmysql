@@ -1,5 +1,6 @@
 package com.jithin.ecommerce.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
@@ -20,7 +21,8 @@ public class Photo extends BaseModel {
     private boolean isMain = false;
 
     @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "product_id")
+    @JsonIgnore
     private Product product;
+
 }
