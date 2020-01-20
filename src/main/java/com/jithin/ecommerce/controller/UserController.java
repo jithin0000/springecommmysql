@@ -2,8 +2,10 @@ package com.jithin.ecommerce.controller;
 
 import com.jithin.ecommerce.dto.LoginRequest;
 import com.jithin.ecommerce.dto.TokenResponse;
+import com.jithin.ecommerce.exception.InvalidLoginResponse;
 import com.jithin.ecommerce.model.User;
 import com.jithin.ecommerce.security.JwtTokenProvider;
+import com.jithin.ecommerce.services.CustomUserDetailService;
 import com.jithin.ecommerce.services.UserService;
 import com.jithin.ecommerce.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +15,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import java.security.Principal;
 
 import static com.jithin.ecommerce.utils.constants.API_BASE;
 
@@ -63,5 +66,20 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwtToken = jwtTokenProvider.generatingToken(authentication);
         return ResponseEntity.ok(new TokenResponse(true, jwtToken));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getUserDetails(Principal principal) {
+
+
+        try {
+            String userName = principal.getName();
+            User user = userService.findByUserName(userName);
+            return ResponseEntity.ok(user);
+
+        } catch (Exception e) {
+            throw new UsernameNotFoundException("invalid username or password");
+        }
+
     }
 }

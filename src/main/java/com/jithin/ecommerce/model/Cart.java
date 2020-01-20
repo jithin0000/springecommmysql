@@ -1,11 +1,10 @@
 package com.jithin.ecommerce.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +17,11 @@ public class Cart extends BaseModel {
     private List<Product> products = new ArrayList<>();
 
     private int total = 0;
+
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    @JsonIgnore
+    private User user;
 
 
     public void addToCart(Product product){

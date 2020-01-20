@@ -6,6 +6,7 @@ import com.jithin.ecommerce.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class UserService {
@@ -29,6 +30,14 @@ public class UserService {
             throw new UserNameAlreadyExistException("user with " + newUser.getUsername() + " already exist");
         }
 
+    }
+
+    public User findByUserName(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public User getById(Long id) {
+        return userRepository.getById(id);
     }
 
 

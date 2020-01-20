@@ -1,22 +1,28 @@
 package com.jithin.ecommerce.controller;
 
+import com.jithin.ecommerce.dto.AddUserToCart;
 import com.jithin.ecommerce.dto.CartResponse;
 import com.jithin.ecommerce.dto.DeleteResponseDto;
 import com.jithin.ecommerce.exception.CartNotFoundException;
 import com.jithin.ecommerce.exception.DepartmentNotFoundException;
+import com.jithin.ecommerce.exception.InvalidLoginResponse;
 import com.jithin.ecommerce.exception.ProductNotFoundException;
 import com.jithin.ecommerce.model.Cart;
 import com.jithin.ecommerce.model.Department;
 import com.jithin.ecommerce.model.Product;
+import com.jithin.ecommerce.model.User;
 import com.jithin.ecommerce.services.CartService;
 import com.jithin.ecommerce.services.DepartmentService;
 import com.jithin.ecommerce.services.ProductService;
+import com.jithin.ecommerce.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Optional;
 
 import static com.jithin.ecommerce.utils.constants.API_BASE;
@@ -33,6 +39,9 @@ public class CartController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("")
     public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(cartService.getAll());
@@ -47,12 +56,12 @@ public class CartController {
 
         if (cart.getProducts().isEmpty()) {
             cart.addToCart(product);
-        }else{
+        } else {
 
 
             if (cart.getProducts().contains(product)) {
                 cart.removeFromCart(product);
-            }else{
+            } else {
                 cart.addToCart(product);
             }
         }
@@ -91,9 +100,18 @@ public class CartController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Cart> updateCart(@PathVariable Long id, @Valid @RequestBody Cart body) {
-
         return new ResponseEntity<>(cartService.update(id, body), HttpStatus.OK);
     }
 
+    @PutMapping("/{id}/user")
+    public ResponseEntity<?> addUserToCart(@PathVariable Long id, @Valid @RequestBody AddUserToCart userToCart) {
+        User user = userService.getById(userToCart.getUserId());
+        if (user == null) {
+            return new ResponseEntity<>(new InvalidLoginResponse()  , HttpStatus.UNAUTHORIZED);
+        }
+        Cart cart = cartService.get(id).orElseThrow(() -> new CartNotFoundException(id));
 
+        cart.setUser(user);
+        return new ResponseEntity<>(cartService.create(cart), HttpStatus.OK);
+    }
 }

@@ -5,6 +5,8 @@ import com.jithin.ecommerce.model.Cart;
 import com.jithin.ecommerce.repository.CartRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 public class CartService extends BaseService<CartRepository, Cart> {
     protected CartService(CartRepository repository) {
@@ -16,7 +18,9 @@ public class CartService extends BaseService<CartRepository, Cart> {
 
         Cart dbCart = getRepository().findById(id).orElseThrow(() -> new CartNotFoundException(id));
 
+        dbCart.setUser(body.getUser());
         dbCart.setProducts(body.getProducts());
+        dbCart.setUpdatedAt(new Date());
 
         return getRepository().save(dbCart);
     }
