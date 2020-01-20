@@ -1,5 +1,6 @@
 package com.jithin.ecommerce.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +19,7 @@ public class Product extends BaseModel {
     @NotNull(message = "description is required field")
     private String description;
     @NotNull(message = "price is required field")
-    private Long price;
+    private int price;
     @NotNull(message = "quantity is required field")
     private int quantity;
 
@@ -26,6 +27,11 @@ public class Product extends BaseModel {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    @JsonIgnore
+    private Cart cart;
 
     private int rating = 0;
 

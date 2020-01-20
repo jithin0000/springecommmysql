@@ -66,7 +66,7 @@ public class Bootstrap implements CommandLineRunner {
             product.setName(faker.artist().name());
             product.setDescription(faker.lorem().sentence(20));
             product.setQuantity(faker.number().randomDigitNotZero());
-            product.setPrice(Long.valueOf(faker.number().numberBetween(100, 900)));
+            product.setPrice(faker.number().numberBetween(100, 900));
             product.setColor(faker.color().name());
             product.setCategory(categoryService.get((long) faker.number().numberBetween(1, 14)).get());
 

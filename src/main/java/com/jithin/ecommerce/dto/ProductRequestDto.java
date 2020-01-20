@@ -15,7 +15,7 @@ public class ProductRequestDto {
     @NotNull(message = "description is required field")
     private String description;
     @NotNull(message = "price is required field")
-    private Long price;
+    private int price;
     @NotNull(message = "quantity is required field")
     private int quantity;
 
