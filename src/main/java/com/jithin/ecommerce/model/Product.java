@@ -23,10 +23,13 @@ public class Product extends BaseModel {
     @NotNull(message = "quantity is required field")
     private int quantity;
 
-
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id", nullable = false)
+    private Brand brand;
 
     @ManyToOne
     @JoinColumn(name = "cart_id")
@@ -36,7 +39,6 @@ public class Product extends BaseModel {
     private int rating = 0;
 
     private ESize size;
-    private String color;
 
     @ManyToMany
     @JoinTable(
@@ -48,4 +50,16 @@ public class Product extends BaseModel {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
     private List<Photo> photos = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_color",
+            joinColumns = {
+                    @JoinColumn(name = "product_id"),
+            },
+            inverseJoinColumns = {@JoinColumn(name = "color_id")}
+
+    )
+    private List<Color> colors = new ArrayList<>();
+
 }

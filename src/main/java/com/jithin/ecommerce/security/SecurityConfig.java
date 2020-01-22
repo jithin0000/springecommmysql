@@ -63,7 +63,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(
                         "/",
-                        "/api/cart/**",
                         "/**/*.png",
                         "/**/*.jpg",
                         "/**/*.svg",
@@ -73,8 +72,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.js"
 
                 ).permitAll()
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers(HttpMethod.GET,"/api/category/**","/api/product/**").permitAll()
+                .antMatchers("/api/auth/**","/api/cart/**").permitAll()
+                .antMatchers(HttpMethod.GET,
+                        "/api/category/**","/api/product/**","/api/brand/**",
+                        "/api/department/**").permitAll()
+                .antMatchers("/api/product/filter").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -9,8 +9,11 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.List;
 
 public interface ProductRepository extends PagingAndSortingRepository<Product, Long> {
-    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
+    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
     Page<Product> findByCategoryIdIn(List<Long> ids, Pageable pageable);
+    Page<Product> findByBrandIdIn(List<Long> ids, Pageable pageable);
+
+    Page<Product> findByColors_NameIgnoreCase(String name, Pageable pageable);
 
 }

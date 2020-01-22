@@ -1,17 +1,15 @@
 package com.jithin.ecommerce.bootstrap;
 
 import com.github.javafaker.Faker;
-import com.jithin.ecommerce.model.Category;
-import com.jithin.ecommerce.model.Department;
-import com.jithin.ecommerce.model.Photo;
-import com.jithin.ecommerce.model.Product;
-import com.jithin.ecommerce.services.CategoryService;
-import com.jithin.ecommerce.services.DepartmentService;
-import com.jithin.ecommerce.services.PhotoService;
-import com.jithin.ecommerce.services.ProductService;
+import com.jithin.ecommerce.exception.BrandNotFoundException;
+import com.jithin.ecommerce.exception.ColorNotFoundException;
+import com.jithin.ecommerce.model.*;
+import com.jithin.ecommerce.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.util.Random;
 
 @Component
 public class Bootstrap implements CommandLineRunner {
@@ -27,12 +25,41 @@ public class Bootstrap implements CommandLineRunner {
     @Autowired
     PhotoService photoService;
 
+    @Autowired
+    private ColorService colorService;
+    @Autowired
+    private BrandService brandService;
+
     @Override
     public void run(String... args) throws Exception {
 
         Faker faker = new Faker();
 
-        generateCategories(faker);
+//        generateColors(faker);
+//
+//        generateBrand(faker);
+//
+//        generateCategories(faker);
+
+
+    }
+
+    private void generateBrand(Faker faker) {
+
+        for (int i = 0; i < 8; i++) {
+            Brand brand = new Brand();
+            brand.setName(faker.company().name());
+            brandService.create(brand);
+        }
+    }
+
+    private void generateColors(Faker faker) {
+
+        for (int i = 0; i < 8; i++) {
+            Color color = new Color();
+            color.setName(faker.color().name());
+            colorService.create(color);
+        }
 
     }
 
@@ -48,9 +75,11 @@ public class Bootstrap implements CommandLineRunner {
 
     private void generateCategories(Faker faker) {
 
-        for (int i = 0; i < 15; i++) {
+        String[] categories = new String[]{"MEN", "WOMEN", "KIDS","OTHER"};
+
+        for (int i = 0; i < 4; i++) {
             Category category = new Category();
-            category.setName(faker.commerce().department());
+            category.setName(categories[i]);
 
             Category category1 = categoryService.create(category);
 
@@ -67,10 +96,17 @@ public class Bootstrap implements CommandLineRunner {
             product.setDescription(faker.lorem().sentence(20));
             product.setQuantity(faker.number().randomDigitNotZero());
             product.setPrice(faker.number().numberBetween(100, 900));
-            product.setColor(faker.color().name());
-            product.setCategory(categoryService.get((long) faker.number().numberBetween(1, 14)).get());
+            product.setCategory(categoryService.get((long) faker.number().numberBetween(1, 4)).get());
 
+            product.getColors().add(colorService.get((long) faker.number().numberBetween(1, 3)).orElseThrow(() -> new ColorNotFoundException()));
+            product.getColors().add(colorService.get((long) faker.number().numberBetween(4,8)).orElseThrow(() -> new ColorNotFoundException()));
+
+            product.setBrand(brandService.get((long) faker.number().numberBetween(1, 8))
+                    .orElseThrow(() -> new BrandNotFoundException((long) 1)));
             generatePhoto(faker, productService.create(product));
+
+
+
         }
     }
 
@@ -78,7 +114,7 @@ public class Bootstrap implements CommandLineRunner {
         for (int i = 0; i < 6; i++) {
 
             Photo photo = new Photo();
-            photo.setImageUrl(faker.internet().image());
+            photo.setImageUrl(faker.avatar().image());
             photo.setProduct(product);
             photoService.create(photo);
         }

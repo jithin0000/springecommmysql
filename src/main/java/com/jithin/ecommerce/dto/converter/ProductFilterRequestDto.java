@@ -14,5 +14,7 @@ public class ProductFilterRequestDto {
     private String search="";
 
     private List<Long> categories = new ArrayList<>();
+    private List<Long> brands = new ArrayList<>();
+
 
 }

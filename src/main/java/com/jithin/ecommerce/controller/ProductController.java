@@ -54,13 +54,13 @@ public class  ProductController {
         return new ResponseEntity<>(productService.PaginatedProductList(page_num, item_size, sort, search), HttpStatus.OK);
     }
 
-    @PostMapping("/filter" +
-            "")
+    @PostMapping("/filter")
     public ResponseEntity<?> getProductsByFiltering(@Valid @RequestBody ProductFilterRequestDto filterRequestDto) {
 
         return ResponseEntity.ok(productService.getFilteredProducts(
                 filterRequestDto.getPage(), filterRequestDto.getPageSize(),filterRequestDto.getSort(),
-                filterRequestDto.getSearch(),filterRequestDto.getCategories()
+                filterRequestDto.getSearch(),filterRequestDto.getCategories(),
+                filterRequestDto.getBrands()
         ));
     }
 

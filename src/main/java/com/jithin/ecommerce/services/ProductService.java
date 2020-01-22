@@ -34,13 +34,16 @@ public class ProductService extends BaseService<ProductRepository, Product> {
         return products;
     }
 
-    public Page<Product> getFilteredProducts(int page, int size, String sort, String search, List<Long> categoryIds) {
+    public Page<Product> getFilteredProducts(int page, int size, String sort, String search,
+                                             List<Long> categoryIds,
+                                             List<Long> brandIds
+                                             ) {
 
         Page<Product> products;
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sort));
         if (!StringUtils.isEmpty(search))
         {
-            products = getRepository().findByNameContainingIgnoreCase(search, pageRequest);
+            products = getRepository().findByColors_NameIgnoreCase(search, pageRequest);
         }else {
 
             products = getRepository().findAll(pageRequest);
@@ -48,6 +51,10 @@ public class ProductService extends BaseService<ProductRepository, Product> {
 
         if (!categoryIds.isEmpty()) {
             products = getRepository().findByCategoryIdIn(categoryIds, pageRequest);
+        }
+
+        if (!brandIds.isEmpty()) {
+            products = getRepository().findByBrandIdIn(brandIds, pageRequest);
         }
 
         return products;
