@@ -16,4 +16,9 @@ public interface ProductRepository extends PagingAndSortingRepository<Product, L
 
     Page<Product> findByColors_NameIn(List<String> name, Pageable pageable);
 
+    Page<Product> findByPriceLessThanEqual(int min, Pageable pageable);
+    Page<Product> findByPriceGreaterThanEqual(int max, Pageable pageable);
+    Page<Product> findByPriceBetween(int min, int max, Pageable pageable);
+
+
 }

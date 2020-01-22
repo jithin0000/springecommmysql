@@ -37,8 +37,8 @@ public class ProductService extends BaseService<ProductRepository, Product> {
     public Page<Product> getFilteredProducts(int page, int size, String sort, String search,
                                              List<Long> categoryIds,
                                              List<Long> brandIds,
-                                             List<String> colorNameList
-                                             ) {
+                                             List<String> colorNameList,
+                                             int min, int max) {
 
         Page<Product> products;
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sort));
@@ -60,6 +60,11 @@ public class ProductService extends BaseService<ProductRepository, Product> {
 
         if (!colorNameList.isEmpty()) {
             products = getRepository().findByColors_NameIn(colorNameList, pageRequest);
+        }
+
+        if (min != 0 || max != 0)
+        {
+            products = getRepository().findByPriceBetween(min, max, pageRequest);
         }
 
         return products;
