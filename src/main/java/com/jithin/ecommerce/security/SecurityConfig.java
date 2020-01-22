@@ -74,7 +74,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 ).permitAll()
                 .antMatchers("/api/auth/**","/api/cart/**").permitAll()
                 .antMatchers(HttpMethod.GET,
-                        "/api/category/**","/api/product/**","/api/brand/**",
+                        "/api/category/**",
+                        "/api/product/**","/api/brand/**",
+                        "/api/color/**",
                         "/api/department/**").permitAll()
                 .antMatchers("/api/product/filter").permitAll()
                 .anyRequest().authenticated();
