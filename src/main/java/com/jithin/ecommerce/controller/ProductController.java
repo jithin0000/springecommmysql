@@ -60,7 +60,7 @@ public class  ProductController {
         return ResponseEntity.ok(productService.getFilteredProducts(
                 filterRequestDto.getPage(), filterRequestDto.getPageSize(),filterRequestDto.getSort(),
                 filterRequestDto.getSearch(),filterRequestDto.getCategories(),
-                filterRequestDto.getBrands()
+                filterRequestDto.getBrands(), filterRequestDto.getColorNameList()
         ));
     }
 

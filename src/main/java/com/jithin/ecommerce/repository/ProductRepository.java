@@ -14,6 +14,6 @@ public interface ProductRepository extends PagingAndSortingRepository<Product, L
     Page<Product> findByCategoryIdIn(List<Long> ids, Pageable pageable);
     Page<Product> findByBrandIdIn(List<Long> ids, Pageable pageable);
 
-    Page<Product> findByColors_NameIgnoreCase(String name, Pageable pageable);
+    Page<Product> findByColors_NameIn(List<String> name, Pageable pageable);
 
 }

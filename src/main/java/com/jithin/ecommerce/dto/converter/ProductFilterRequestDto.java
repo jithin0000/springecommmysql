@@ -15,6 +15,7 @@ public class ProductFilterRequestDto {
 
     private List<Long> categories = new ArrayList<>();
     private List<Long> brands = new ArrayList<>();
+    private List<String> colorNameList = new ArrayList<>();
 
 
 }
