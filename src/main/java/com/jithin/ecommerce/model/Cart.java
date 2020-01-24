@@ -22,7 +22,7 @@ public class Cart extends BaseModel {
     @JoinColumn(name="user_id")
     @JsonIgnore
     private User user;
-
+    private Long cartUserId;
 
     public void addToCart(Product product){
         this.products.add(product);

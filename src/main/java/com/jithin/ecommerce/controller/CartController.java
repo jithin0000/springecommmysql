@@ -104,14 +104,17 @@ public class CartController {
     }
 
     @PutMapping("/{id}/user")
-    public ResponseEntity<?> addUserToCart(@PathVariable Long id, @Valid @RequestBody AddUserToCart userToCart) {
+    public ResponseEntity<?> addUserToCart(@PathVariable Long id,
+                                           @Valid @RequestBody AddUserToCart userToCart) {
         User user = userService.getById(userToCart.getUserId());
         if (user == null) {
             return new ResponseEntity<>(new InvalidLoginResponse()  , HttpStatus.UNAUTHORIZED);
         }
         Cart cart = cartService.get(id).orElseThrow(() -> new CartNotFoundException(id));
 
+
         cart.setUser(user);
+        cart.setCartUserId(user.getId());
         return new ResponseEntity<>(cartService.create(cart), HttpStatus.OK);
     }
 }
