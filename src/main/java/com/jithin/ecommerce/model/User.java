@@ -1,6 +1,7 @@
 package com.jithin.ecommerce.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.criterion.Order;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -30,6 +31,12 @@ public class User extends BaseModel implements UserDetails {
     private String password;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+    private List<ProductOrder> orders = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+    private List<Address> addresses = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<Cart> carts = new ArrayList<>();
 
     public List<Cart> getCarts() {
@@ -38,6 +45,22 @@ public class User extends BaseModel implements UserDetails {
 
     public void setCarts(List<Cart> carts) {
         this.carts = carts;
+    }
+
+    public List<ProductOrder> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<ProductOrder> orders) {
+        this.orders = orders;
+    }
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
     }
 
     public void setUsername(String username) {

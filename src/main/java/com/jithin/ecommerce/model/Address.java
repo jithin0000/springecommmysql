@@ -1,5 +1,6 @@
 package com.jithin.ecommerce.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -27,7 +28,7 @@ public class Address extends BaseModel {
     private String countryCode;
 
     @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = true)
+    @JsonIgnore
     private User user;
 }
