@@ -5,24 +5,20 @@ import com.jithin.ecommerce.dto.ProductRequestDto;
 import com.jithin.ecommerce.dto.converter.ProductFilterRequestDto;
 import com.jithin.ecommerce.dto.converter.ProductRequestDtoToProduct;
 import com.jithin.ecommerce.exception.CategoryNotFoundException;
-import com.jithin.ecommerce.exception.DepartmentNotFoundException;
 import com.jithin.ecommerce.exception.PhotoNotFoundException;
 import com.jithin.ecommerce.exception.ProductNotFoundException;
 import com.jithin.ecommerce.model.Category;
 import com.jithin.ecommerce.model.Photo;
 import com.jithin.ecommerce.model.Product;
-import com.jithin.ecommerce.model.Department;
 import com.jithin.ecommerce.services.CategoryService;
 import com.jithin.ecommerce.services.PhotoService;
 import com.jithin.ecommerce.services.ProductService;
-import com.jithin.ecommerce.services.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 import static com.jithin.ecommerce.utils.constants.API_BASE;
 
@@ -51,7 +47,7 @@ public class  ProductController {
         int page_num = Integer.parseInt(page);
         int item_size = Integer.parseInt(size);
 
-        return new ResponseEntity<>(productService.PaginatedProductList(page_num, item_size, sort, search), HttpStatus.OK);
+        return new ResponseEntity<>(productService.getPaginatedResult(page_num, item_size, sort, search), HttpStatus.OK);
     }
 
     @PostMapping("/filter")

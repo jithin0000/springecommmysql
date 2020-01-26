@@ -1,5 +1,6 @@
 package com.jithin.ecommerce.services;
 
+import com.jithin.ecommerce.exception.ProductNotFoundException;
 import com.jithin.ecommerce.model.Product;
 import com.jithin.ecommerce.repository.ProductRepository;
 import org.springframework.data.domain.Page;
@@ -18,10 +19,22 @@ public class ProductService extends BaseService<ProductRepository, Product> {
 
     @Override
     public Product update(Long id, Product body) {
-        return null;
+        Product product = getRepository().findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+        product.setName(body.getName());
+        product.setPrice(body.getPrice());
+        product.setBrand(body.getBrand());
+        product.setCart(body.getCart());
+        product.setCategory(body.getCategory());
+        product.setQuantity(body.getQuantity());
+        product.setRating(body.getRating());
+        product.setDescription(body.getDescription());
+        product.setColors(body.getColors());
+        product.setPhotos(body.getPhotos());
+        product.setSize(body.getSize());
+        return getRepository().save(product);
     }
 
-    public Page<Product> PaginatedProductList(int page, int size, String sort, String search) {
+    public Page<Product> getPaginatedResult(int page, int size, String sort, String search) {
         Page<Product> products;
         if (!StringUtils.isEmpty(search))
         {

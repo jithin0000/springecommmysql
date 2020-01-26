@@ -11,6 +11,7 @@ import com.jithin.ecommerce.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ class ProductServiceTest {
 
     ProductService SUT;
     private static Long productId = 1L;
-    private static Long invalidProductId = 0L;
+    private static Long invalidProductId = -12L;
 
     @BeforeEach
     void setUp() {
@@ -57,17 +58,25 @@ class ProductServiceTest {
     }
 
     @Test
-    void getIdFailureResponse() {
-        try {
-            Optional<Product> result = SUT.get(invalidProductId);
-                        mockSingleProductFailure();
-        } catch (Exception e) {
-            assertTrue(e instanceof ProductNotFoundException);
-        }
+    void getByIdThrowErrorWhenIdIsNull() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            mockSingleProductFailure();
+            SUT.get(null);
+        });
 
+        assertTrue(exception instanceof IllegalArgumentException);
+    }
 
+    @Test
+    void getByIdReturnEmptyfIdIsInvalid(){
+        mockNullResponse();
+        Optional<Product> product = SUT.get(productId);
+        verify(productRepositoryMock, times(1)).findById(productId);
+        assertEquals(Optional.empty(), product);
+    }
 
-
+    private void mockNullResponse() {
+        when(productRepositoryMock.findById(invalidProductId)).thenReturn(Optional.empty());
     }
 
 
@@ -85,20 +94,19 @@ class ProductServiceTest {
     @Test
     void createProductWithFailure() {
 
-        try {
+        Exception exception = assertThrows(IllegalArgumentException.class, ()->{
             mockCreateFailure();
-            assertFalse(SUT.create(getNullableBodyParameter()) instanceof Product);
-
-        } catch (Exception e) {
-            assertTrue(e instanceof IllegalArgumentException);
-        }
+            SUT.create(getNullableBodyParameter());
+        });
+        verify(productRepositoryMock, times(1)).save(getNullableBodyParameter());
+        assertTrue(exception instanceof IllegalArgumentException);
     }
 
 
     @Test
     void deleteSuccess() {
-        doNothing().when(spy(productRepositoryMock)).deleteById(productId);
 
+        doNothing().when(spy(productRepositoryMock)).deleteById(productId);
         ArgumentCaptor<Long> ac = ArgumentCaptor.forClass(Long.class);
         DeleteResponseDto result = SUT.delete(productId);
 
@@ -108,23 +116,65 @@ class ProductServiceTest {
     }
 
 
-
     @Test
-    void update() {
+    void update_check_update_contains_id_and_body() {
+
+        mockSingleProductSuccess();
+        mockCreateSuccess();
+
+        ArgumentCaptor<Long> ac = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<Product> pac = ArgumentCaptor.forClass(Product.class);
+
+        Product result = SUT.update(productId, getSingleProduct());
+        verify(productRepositoryMock, times(1)).findById(ac.capture());
+        verify(productRepositoryMock, times(1)).save(pac.capture());
+        assertEquals(result.getId(), ac.getValue());
+        assertNotNull(result);
+        assertEquals(result.getName(), pac.getValue().getName());
+    }
+    @Test
+    void update_with_invalid_id(){
+        Exception exception = assertThrows(ProductNotFoundException.class, () -> {
+            mocksInvalidIdException();
+            SUT.update(invalidProductId, getSingleProduct());
+        });
+        assertTrue(exception instanceof ProductNotFoundException);
+        assertTrue(exception.getLocalizedMessage().contains(invalidProductId.toString()));
+    }
+
+    private void mocksInvalidIdException() {
+        when(productRepositoryMock.findById(invalidProductId)).thenThrow(new ProductNotFoundException(invalidProductId));
 
     }
 
+
     @Test
     void paginatedProductList() {
+
+        when(productRepositoryMock
+                .findByNameContainingIgnoreCase("search", PageRequest.of(1,1, Sort.by("createAt"))))
+                .thenReturn(getPaginatedProduct());
+
+        Page<Product> result = SUT.getPaginatedResult(1, 1, "createAt", "search");
+        verify(productRepositoryMock, times(1))
+                .findByNameContainingIgnoreCase("search", PageRequest.of(1, 1, Sort.by("createAt")));
+
+    }
+
+    private Page<Product> getPaginatedProduct() {
+        Page<Product> products = new PageImpl<Product>((List<Product>) products());
+        return products;
     }
 
     @Test
     void getFilteredProducts() {
     }
 
+
     private void mockCreateFailure() throws Exception {
-        when(productRepositoryMock.save(getNullableBodyParameter())).thenThrow(new IllegalArgumentException());
+        when(productRepositoryMock.save(getNullableBodyParameter())).thenThrow(IllegalArgumentException.class);
     }
+
 
     private Product getNullableBodyParameter() {
         Product product = new Product();
@@ -161,8 +211,7 @@ class ProductServiceTest {
 
 
     private void mockSingleProductFailure() throws Exception {
-        when(productRepositoryMock.findById(invalidProductId))
-                .thenThrow(new ProductNotFoundException(invalidProductId));
+        when(productRepositoryMock.findById(null)).thenThrow(IllegalArgumentException.class);
 
     }
 
