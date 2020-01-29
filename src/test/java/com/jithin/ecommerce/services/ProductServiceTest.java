@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,15 +22,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
+    public static final String SEARCH = "search";
+    private static final String EMPTY_SEARCH = "";
+    public static final String CREATE_AT = "createAt";
 
-    // TODO: 22/01/20 need to remove faker from this, its a big bug
-    // FIXME: 22/01/20 need to remove faker from test
+//    FIXME:// FIX paginated and filtered product list bug
 
     private ProductRepository productRepositoryMock;
 
     ProductService SUT;
     private static Long productId = 1L;
     private static Long invalidProductId = -12L;
+    public static final PageRequest PAGE_REQUEST = PageRequest.of(1, 1, Sort.by("createAt"));
 
     @BeforeEach
     void setUp() {
@@ -151,13 +155,49 @@ class ProductServiceTest {
     @Test
     void paginatedProductList() {
 
+        PageRequest pageRequest = PageRequest.of(1, 1, Sort.by("createAt"));
         when(productRepositoryMock
-                .findByNameContainingIgnoreCase("search", PageRequest.of(1,1, Sort.by("createAt"))))
+                .findByNameContainingIgnoreCase(SEARCH, pageRequest))
                 .thenReturn(getPaginatedProduct());
 
         Page<Product> result = SUT.getPaginatedResult(1, 1, "createAt", "search");
         verify(productRepositoryMock, times(1))
-                .findByNameContainingIgnoreCase("search", PageRequest.of(1, 1, Sort.by("createAt")));
+                .findByNameContainingIgnoreCase("search", pageRequest);
+        verify(productRepositoryMock, times(0)).findAll(pageRequest);
+
+    }
+
+    @Test
+    void paginatedProductsWhenSearchIsEmpty(){
+        when(productRepositoryMock
+                .findByNameContainingIgnoreCase(EMPTY_SEARCH, PAGE_REQUEST))
+                .thenReturn(getPaginatedProduct());
+
+        Page<Product> result = SUT.getPaginatedResult(1, 1, "createAt",EMPTY_SEARCH);
+        verify(productRepositoryMock, times(1))
+                .findAll(PAGE_REQUEST);
+        verify(productRepositoryMock, times(0)).findByNameContainingIgnoreCase(
+                SEARCH, PAGE_REQUEST);
+
+    }
+
+
+
+    @Test
+    void getFilteredProducts() {
+
+        when(productRepositoryMock.findByNameContainingIgnoreCase(SEARCH, PAGE_REQUEST))
+                .thenReturn(getPaginatedProduct());
+
+
+        Page<Product> products = SUT.getFilteredProducts(1,10, CREATE_AT, SEARCH
+                , Arrays.asList(1L,2L)
+                , Arrays.asList(1L,2L)
+                , Arrays.asList("first", "second"),
+                20, 25
+                );
+
+//        verify(productRepositoryMock, times(1)).findByNameContainingIgnoreCase(SEARCH, PAGE_REQUEST);
 
     }
 
@@ -165,11 +205,6 @@ class ProductServiceTest {
         Page<Product> products = new PageImpl<Product>((List<Product>) products());
         return products;
     }
-
-    @Test
-    void getFilteredProducts() {
-    }
-
 
     private void mockCreateFailure() throws Exception {
         when(productRepositoryMock.save(getNullableBodyParameter())).thenThrow(IllegalArgumentException.class);
